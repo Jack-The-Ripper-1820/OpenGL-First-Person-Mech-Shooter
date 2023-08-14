@@ -10,14 +10,16 @@ project ("OpenGLSamples")
 add_subdirectory(glfw)
 add_subdirectory(glew)
 add_subdirectory(glm)
-add_subdirectory("sample1")
+add_subdirectory("src")
+
 
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET sample1 PROPERTY CXX_STANDARD 20)
+  set_property(TARGET src PROPERTY CXX_STANDARD 20)
 endif()
 
 # TODO: Add tests and install targets if needed.
-target_include_directories(sample1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
-target_include_directories(sample1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glew/include)
-target_include_directories(sample1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
+target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glew/include)
+target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stb_image)
