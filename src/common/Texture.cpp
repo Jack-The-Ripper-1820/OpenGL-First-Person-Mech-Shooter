@@ -6,10 +6,10 @@ Texture::Texture()
 	width = 0;
 	height = 0;
 	bitDepth = 0;
-	fileLocation = "";
+	fileLocation = (char*)"";
 }
 
-Texture::Texture(const char* fileLocation)
+Texture::Texture(char* fileLocation)
 {
 	textureID = 0;
 	width = 0;
@@ -31,6 +31,8 @@ void Texture::LoadTexture()
 		return;
 	}
 
+	printf("found texture: %s \n", fileLocation);
+
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -51,6 +53,7 @@ void Texture::UseTexture()
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
+	//printf("%d \n", textureID);
 }
 
 void Texture::ClearTexture()
@@ -60,5 +63,5 @@ void Texture::ClearTexture()
 	width = 0;
 	height = 0;
 	bitDepth = 0;
-	fileLocation = "";
+	fileLocation = (char*)"";
 }

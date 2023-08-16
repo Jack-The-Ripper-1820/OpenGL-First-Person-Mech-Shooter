@@ -15,6 +15,8 @@
 #include <Mesh.hpp>
 #include <Camera.hpp>
 #include <Texture.hpp>
+#include <Light.hpp>
+#include <Utils.hpp>
 
 
 std::vector<Mesh*> meshList;
@@ -22,8 +24,10 @@ std::vector<Shader> shaderList;
 Window mainWindow;
 Camera camera;
 
-Texture scifi1Texture;
-Texture scifi2Texture;
+Texture brickTexture;
+Texture dirtTexture;
+
+Light mainLight;
 
 GLfloat deltaTime = 0.f;
 GLfloat lastTime = 0.f;
@@ -53,18 +57,20 @@ void CreateObjects()
 	};
 
 	GLfloat vertices[] = {
-	//  x      y      z      u      v
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, -1.0f, 1.0f,  0.5f, 0.f,
-		1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,   0.5f, 1.0f
+	//  x      y      z         u      v       nx,    ny,   nz
+		-1.0f, -1.0f, 0.0f,    0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 1.0f,     0.5f, 0.f,	  0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,     1.0f, 0.0f,	  0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,      0.5f, 1.0f,	  0.0f, 0.0f, 0.0f,
 	};
 
+	Utils::calcAverageNormal(indices, 12, vertices, 32, 8, 5);
+
 	Mesh* obj1 = new Mesh();
-	obj1->CreateMesh(vertices, indices, 20, 12);
+	obj1->CreateMesh(vertices, indices, 32, 12);
 	
 	Mesh* obj2 = new Mesh();
-	obj2->CreateMesh(vertices, indices, 20, 12);
+	obj2->CreateMesh(vertices, indices, 32, 12);
 
 	meshList.push_back(obj1);
 	meshList.push_back(obj2);
@@ -85,13 +91,18 @@ int main()
 	CreateShaders();
 	camera = Camera(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), -90.f, 0.f, 5.f, 0.2f);
 
-	scifi1Texture = Texture((char*)"../../textures/scifi1.png");
-	scifi1Texture.LoadTexture();
-	scifi2Texture = Texture((char*)"../../textures/scifi2.png");
-	scifi2Texture.LoadTexture();
+	brickTexture = Texture((char*)"textures/brick.png");
+	brickTexture.LoadTexture();
+	dirtTexture = Texture((char*)"textures/dirt.png");
+	dirtTexture.LoadTexture();
 
+	mainLight = Light(1.f, 1.f, 1.f, 0.2f, 
+		2.f, -1.f, -2.f, 1.f);
 
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, 
+		uniformAmbientColor = 0, uniformAmbientIntensity = 0,
+		uniformDirection = 0, uniformDiffuseIntensity = 0;
+
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat) mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	// Loop until window closed
@@ -146,6 +157,13 @@ int main()
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		uniformView = shaderList[0].GetViewLocation();
+		uniformAmbientColor = shaderList[0].GetAmbientColorLocation();
+		uniformAmbientIntensity = shaderList[0].GetAmbientIntensityLocation();
+		uniformDirection = shaderList[0].GetDirectionLocation();
+		uniformDiffuseIntensity = shaderList[0].GetDiffuseIntensityLocation();
+
+		mainLight.UseLight(uniformAmbientIntensity, uniformAmbientColor,
+			uniformDiffuseIntensity, uniformDirection);
 
 		glm::mat4 model(1.0f);
 
@@ -157,7 +175,7 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		
-		scifi1Texture.UseTexture();
+		brickTexture.UseTexture();
 
 		meshList[0]->RenderMesh();
 
@@ -167,7 +185,7 @@ int main()
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		scifi2Texture.UseTexture();
+		dirtTexture.UseTexture();
 
 		meshList[1]->RenderMesh();
 
