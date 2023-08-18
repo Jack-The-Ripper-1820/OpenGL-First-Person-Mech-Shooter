@@ -8,7 +8,7 @@ file(GLOB SHADERS "shaders/*")
 file(GLOB TEXTURES "textures/*")
 
 
-add_executable(src sample1.cpp ${COMMON_SOURCES} ${SHADERS})
+add_executable(src "main.cpp" ${COMMON_SOURCES} ${SHADERS})
 file(COPY ${SHADERS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 file(COPY ${TEXTURES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/textures)
 
