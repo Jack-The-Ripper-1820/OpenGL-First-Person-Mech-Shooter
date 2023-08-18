@@ -125,7 +125,7 @@ int main()
 	matteMaterial = Material(0.3f, 4);
 
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f,
+		0.2f, 1.f,
 		0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 2;
