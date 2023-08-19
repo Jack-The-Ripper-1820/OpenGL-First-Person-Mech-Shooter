@@ -11,13 +11,13 @@ public:
 		GLfloat xPos, GLfloat yPos, GLfloat zPos,
 		GLfloat constant, GLfloat linear, GLfloat exponent);
 
-	void UseLight(GLfloat ambientIntensityLocation, GLfloat ambientColorLocation,
-		GLfloat diffuseIntensityLocation, GLfloat positionLocation,
-		GLfloat constantLocation, GLfloat linearLocation, GLfloat exponentLocation);
+	virtual void UseLight(GLuint ambientIntensityLocation, GLuint ambientColorLocation,
+		GLuint diffuseIntensityLocation, GLuint positionLocation,
+		GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation);
 
 	~PointLight();
 
-private:
+protected:
 	glm::vec3 position;
 
 	GLfloat constant, linear, exponent;

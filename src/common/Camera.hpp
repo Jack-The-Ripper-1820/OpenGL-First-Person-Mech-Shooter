@@ -19,6 +19,8 @@ public:
 
 	glm::vec3 getCameraPosition();
 
+	glm::vec3 getCameraDirection();
+
 private:
 	glm::vec3 position;
 	glm::vec3 front;

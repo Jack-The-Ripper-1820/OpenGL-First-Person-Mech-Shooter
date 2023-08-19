@@ -34,6 +34,7 @@ Texture plainTexture;
 
 DirectionalLight mainLight;
 PointLight pointLights[N_POINT_LIGHTS];
+SpotLight spotLights[N_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.f;
 GLfloat lastTime = 0.f;
@@ -140,6 +141,22 @@ int main()
 		-4.0f, 2.0f, 0.0f,
 		0.3f, 0.1f, 0.1f);
 
+	unsigned int spotLightCount = 2;
+
+	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+		0.0f, 2.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		20.0f);
+
+	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, -1.5f, 0.0f,
+		-100.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		20.0f);
+
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, 
 		uniformEyePosition  = 0, uniformSpecularIntensity = 9, uniformShininess = 0;
 
@@ -171,8 +188,13 @@ int main()
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
+		glm::vec3 lowLightPos = camera.getCameraPosition();
+		lowLightPos.y -= 0.3f;
+		spotLights[0].SetFlash(lowLightPos, camera.getCameraDirection());
+
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
+		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
@@ -207,6 +229,10 @@ int main()
 		plainTexture.UseTexture();
 		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
+
+		/*plainTexture.UseTexture();
+		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[2]->RenderMesh();*/
 
 		glUseProgram(0);
 

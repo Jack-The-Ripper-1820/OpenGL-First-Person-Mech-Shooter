@@ -21,8 +21,8 @@ Light::~Light()
 {
 }
 
-void Light::UseLight(GLfloat ambientIntensityLocation, GLfloat ambientColorLocation,
-	GLfloat diffuseIntensityLocation)
+void Light::UseLight(GLuint ambientIntensityLocation, GLuint ambientColorLocation,
+	GLuint diffuseIntensityLocation)
 {
 	glUniform3f(ambientColorLocation, color.x, color.y, color.z);
 	glUniform1f(ambientIntensityLocation, ambientIntensity);
