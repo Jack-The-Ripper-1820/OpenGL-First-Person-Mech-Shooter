@@ -9,6 +9,7 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <assimp/Importer.hpp>
 
 #include <Window.hpp>
 #include <Shader.hpp>
@@ -19,9 +20,7 @@
 #include <Utils.hpp>
 #include <Material.hpp>
 #include <Constants.hpp>
-
-#include <assimp/Importer.hpp>
-
+#include <Model.hpp>
 
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
@@ -29,6 +28,8 @@ Window mainWindow;
 Camera camera;
 
 Material glossyMaterial, matteMaterial;
+
+Model mech, bugatti, xwing;
 
 Texture brickTexture;
 Texture dirtTexture;
@@ -126,6 +127,15 @@ int main()
 
 	glossyMaterial = Material(1.f, 32);
 	matteMaterial = Material(0.3f, 4);
+
+	/*mech = Model();
+	mech.LoadModel("models/mech.obj");*/
+
+	/*bugatti = Model();
+	bugatti.LoadModel("models/bugatti.obj");*/
+
+	xwing = Model();
+	xwing.LoadModel("models/x-wing.obj");
 
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 		0.2f, 1.f,
@@ -235,9 +245,12 @@ int main()
 		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
 
-		/*plainTexture.UseTexture();
+		model = glm::mat4(1.f);
+		model = glm::translate(model, glm::vec3(-7.f, 0.f, 10.f));
+		model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh();*/
+		xwing.RenderModel();
 
 		glUseProgram(0);
 

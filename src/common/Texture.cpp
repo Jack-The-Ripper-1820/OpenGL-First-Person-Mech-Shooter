@@ -6,10 +6,10 @@ Texture::Texture()
 	width = 0;
 	height = 0;
 	bitDepth = 0;
-	fileLocation = (char*)"";
+	fileLocation = "";
 }
 
-Texture::Texture(char* fileLocation)
+Texture::Texture(char const* fileLocation)
 {
 	textureID = 0;
 	width = 0;
@@ -23,12 +23,12 @@ Texture::~Texture()
 	ClearTexture();
 }
 
-void Texture::LoadTexture()
+bool Texture::LoadTexture()
 {
 	unsigned char* textData = stbi_load(fileLocation, &width, &height, &bitDepth, 0);
 	if (!textData) {
 		printf("failed to find: %s \n", fileLocation);
-		return;
+		return false;
 	}
 
 	printf("found texture: %s \n", fileLocation);
@@ -47,6 +47,8 @@ void Texture::LoadTexture()
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	stbi_image_free(textData);
+
+	return true;
 }
 
 void Texture::UseTexture()
@@ -63,5 +65,5 @@ void Texture::ClearTexture()
 	width = 0;
 	height = 0;
 	bitDepth = 0;
-	fileLocation = (char*)"";
+	fileLocation = "";
 }
