@@ -10,6 +10,7 @@ project ("OpenGLSamples")
 add_subdirectory(glfw)
 add_subdirectory(glew)
 add_subdirectory(glm)
+add_subdirectory(assimp)
 add_subdirectory("src")
 
 
@@ -23,3 +24,5 @@ target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glew/include)
 target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/stb_image)
+target_include_directories(src PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
+

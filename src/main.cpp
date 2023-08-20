@@ -20,6 +20,8 @@
 #include <Material.hpp>
 #include <Constants.hpp>
 
+#include <assimp/Importer.hpp>
+
 
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
@@ -161,6 +163,9 @@ int main()
 		uniformEyePosition  = 0, uniformSpecularIntensity = 9, uniformShininess = 0;
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat) mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+
+
+	Assimp::Importer importer = Assimp::Importer();
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())

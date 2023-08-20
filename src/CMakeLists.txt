@@ -17,4 +17,5 @@ target_link_libraries(
 	src
 	glfw
 	libglew_static
+	assimp::assimp
 )

@@ -31,7 +31,7 @@ std::string Shader::ReadFile(const char* fileLocation)
 	std::ifstream fileStream(fileLocation, std::ios::in);
 
 	if (!fileStream.is_open()) {
-		printf("Failed to read %s! File does'nt exist \n", fileLocation);
+		printf("Failed to read %s : File doesn't exist \n", fileLocation);
 		return std::string();
 	}
 
