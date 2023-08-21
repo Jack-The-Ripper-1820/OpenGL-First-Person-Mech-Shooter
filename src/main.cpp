@@ -29,7 +29,7 @@ Camera camera;
 
 Material glossyMaterial, matteMaterial;
 
-Model mech, bugatti, xwing;
+Model mech, bugatti, xwingPlayer, xwing;
 
 Texture brickTexture;
 Texture dirtTexture;
@@ -119,23 +119,26 @@ int main()
 	camera = Camera(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), -90.f, 0.f, 5.f, 0.2f);
 
 	brickTexture = Texture((char*)"textures/brick.png");
-	brickTexture.LoadTexture();
+	brickTexture.LoadTextureA();
 	dirtTexture = Texture((char*)"textures/dirt.png");
-	dirtTexture.LoadTexture();
+	dirtTexture.LoadTextureA();
 	plainTexture = Texture((char*)"textures/plain.png");
-	plainTexture.LoadTexture();
+	plainTexture.LoadTextureA();
 
 	glossyMaterial = Material(1.f, 32);
 	matteMaterial = Material(0.3f, 4);
 
 	/*mech = Model();
 	mech.LoadModel("models/mech.obj");*/
-
+	
 	/*bugatti = Model();
 	bugatti.LoadModel("models/bugatti.obj");*/
 
 	xwing = Model();
 	xwing.LoadModel("models/x-wing.obj");
+
+	xwingPlayer = Model();
+	xwingPlayer.LoadModel("models/x-wing.obj");
 
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 		0.2f, 1.f,
@@ -205,7 +208,7 @@ int main()
 
 		glm::vec3 lowLightPos = camera.getCameraPosition();
 		lowLightPos.y -= 0.3f;
-		spotLights[0].SetFlash(lowLightPos, camera.getCameraDirection());
+		//spotLights[0].SetFlash(lowLightPos, camera.getCameraDirection());
 
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
@@ -251,6 +254,42 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		xwing.RenderModel();
+
+
+		// Update xwingPlayer's position and orientation based on camera
+		glm::vec3 playerPosition = camera.getCameraPosition() - camera.getCameraDirection() * 2.f;
+		glm::vec3 playerOrientation = camera.getCameraDirection();
+
+		model = glm::mat4(1.f);
+		model = glm::translate(model, playerPosition);
+		//model = glm::translate(model, glm:: vec3(0.f, 0.f, 0.01f));
+		float yaw = glm::degrees(atan2(playerOrientation.x, playerOrientation.z));
+		float pitch = glm::degrees(asin(-playerOrientation.y));
+
+		// Rotate the model according to the camera's orientation
+		//model = glm::rotate(model, glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		xwingPlayer.RenderModel();
+
+		printf("Camera Position: %f %f %f \n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		//printf("Player Position: %f %f %f \n", playerPosition.x, playerPosition.y, playerPosition.z);
+
+		printf("Camera Direction: %f %f %f \n", camera.getCameraDirection().x, camera.getCameraDirection().y, camera.getCameraDirection().z);
+		//printf("Player Direction: %f %f %f \n", playerOrientation.x, playerOrientation.y, playerOrientation.z);
+
+		// Extract position from the model matrix (translation part)
+		glm::vec3 modelPosition = glm::vec3(model[3]); // Assuming the translation is in the last column
+
+		// Extract direction from the model matrix (view direction)
+		glm::vec3 modelDirection = -glm::vec3(model[2]); // Assuming the view direction is in the third column
+
+		std::cout << "Model Position: (" << modelPosition.x << ", " << modelPosition.y << ", " << modelPosition.z << ")" << std::endl;
+		std::cout << "Model Direction: (" << modelDirection.x << ", " << modelDirection.y << ", " << modelDirection.z << ")" << std::endl;
+
 
 		glUseProgram(0);
 

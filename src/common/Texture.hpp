@@ -12,6 +12,7 @@ public:
 	bool LoadTexture();
 	void UseTexture();
 	void ClearTexture();
+	bool LoadTextureA();
 	
 private:
 	GLuint textureID;
