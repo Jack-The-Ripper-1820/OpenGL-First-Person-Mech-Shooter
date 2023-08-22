@@ -24,6 +24,7 @@
 
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
+Shader directionalShadowShader;
 Window mainWindow;
 Camera camera;
 
@@ -54,11 +55,17 @@ float curSize = 0.4f;
 float maxSize = 0.8f;
 float minSize = 0.1f;
 
-static const char* vShader = "shaders/vs.glsl";
-static const char* fShader = "shaders/fs.glsl";
+static const char* vShader = "shaders/vertex.glsl";
+static const char* fShader = "shaders/fragment.glsl";
 
-void CreateObjects()
-{
+unsigned int pointLightCount = 0;
+unsigned int spotLightCount = 0;
+
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
+uniformSpecularIntensity = 0, uniformShininess = 0,
+uniformDirectionalLightTransform = 0;
+
+void CreateObjects() {
 	unsigned int indices[] = {
 		0, 3, 1,
 		1, 3, 2,
@@ -107,56 +114,142 @@ void CreateShaders() {
 	Shader* shader1 = new Shader();
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
+
+	directionalShadowShader = Shader();
+	directionalShadowShader.CreateFromFiles("shaders/directional_shadow_map_vertex.glsl", "shaders/directional_shadow_map_fragment.glsl");
 }
 
-int main()
-{
-	mainWindow = Window(1920, 1080);
+void RenderScene() {
+	glm::mat4 model(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	brickTexture.UseTexture();
+	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	meshList[0]->RenderMesh();
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 4.0f, -2.5f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	dirtTexture.UseTexture();
+	matteMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	meshList[1]->RenderMesh();
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	dirtTexture.UseTexture();
+	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	meshList[2]->RenderMesh();
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-7.0f, 0.0f, 10.0f));
+	model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	matteMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	xwing.RenderModel();
+}
+
+void DirectionalShadowMapPass(DirectionalLight* light) {
+	directionalShadowShader.UseShader();
+
+	glViewport(0, 0, light->GetShadowMap()->GetShadowWidth(), light->GetShadowMap()->GetShadowHeight());
+
+	light->GetShadowMap()->Write();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	uniformModel = directionalShadowShader.GetModelLocation();
+	glm::mat4 lightTransform = light->CalcLightTransform();
+	directionalShadowShader.SetDirectionalLightTransform(&lightTransform);
+
+	RenderScene();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
+	shaderList[0].UseShader();
+
+	uniformModel = shaderList[0].GetModelLocation();
+	uniformProjection = shaderList[0].GetProjectionLocation();
+	uniformView = shaderList[0].GetViewLocation();
+	uniformModel = shaderList[0].GetModelLocation();
+	uniformEyePosition = shaderList[0].GetEyePositionLocation();
+	uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
+	uniformShininess = shaderList[0].GetShininessLocation();
+
+	glViewport(0, 0, 1366, 768);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+
+	shaderList[0].SetDirectionalLight(&mainLight);
+	shaderList[0].SetPointLights(pointLights, pointLightCount);
+	shaderList[0].SetSpotLights(spotLights, spotLightCount);
+	glm::mat4 mainLightTransform = mainLight.CalcLightTransform();
+	shaderList[0].SetDirectionalLightTransform(&mainLightTransform);
+
+	mainLight.GetShadowMap()->Read(GL_TEXTURE1);
+	shaderList[0].SetTexture(0);
+	shaderList[0].SetDirectionalShadowMap(1);
+
+	glm::vec3 lowerLight = camera.getCameraPosition();
+	lowerLight.y -= 0.3f;
+	//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
+	RenderScene();
+}
+
+
+int main() {
+	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
 	mainWindow.Initialize();
 
 	CreateObjects();
 	CreateShaders();
-	camera = Camera(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), -90.f, 0.f, 5.f, 0.2f);
 
-	brickTexture = Texture((char*)"textures/brick.png");
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
+
+	brickTexture = Texture("textures/brick.png");
 	brickTexture.LoadTextureA();
-	dirtTexture = Texture((char*)"textures/dirt.png");
+	dirtTexture = Texture("textures/dirt.png");
 	dirtTexture.LoadTextureA();
-	plainTexture = Texture((char*)"textures/plain.png");
+	plainTexture = Texture("textures/plain.png");
 	plainTexture.LoadTextureA();
 
-	glossyMaterial = Material(1.f, 32);
+	glossyMaterial = Material(4.0f, 256);
 	matteMaterial = Material(0.3f, 4);
-
-	/*mech = Model();
-	mech.LoadModel("models/mech.obj");*/
-	
-	/*bugatti = Model();
-	bugatti.LoadModel("models/bugatti.obj");*/
 
 	xwing = Model();
 	xwing.LoadModel("models/x-wing.obj");
 
-	xwingPlayer = Model();
-	xwingPlayer.LoadModel("models/x-wing.obj");
+	mainLight = DirectionalLight(
+		1.0f, 1.0f, 1.0f,
+		0.1f, 0.3f,
+		0.0f, -15.0f, -10.0f,
+		2048, 2048);
 
-	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.2f, 1.f,
-		0.0f, 0.0f, -1.0f);
-
-	unsigned int pointLightCount = 2;
+	std::cout << "directiona" << std::endl;
 
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f,
+		0.0f, 0.1f,
 		0.0f, 0.0f, 0.0f,
 		0.3f, 0.2f, 0.1f);
 
+	std::cout << "pointlight" << std::endl;
+
+	pointLightCount++;
 	pointLights[1] = PointLight(0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f,
+		0.0f, 0.1f,
 		-4.0f, 2.0f, 0.0f,
 		0.3f, 0.1f, 0.1f);
+	pointLightCount++;
 
-	unsigned int spotLightCount = 2;
+	std::cout << "pointlight" << std::endl;
 
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 2.0f,
@@ -164,134 +257,33 @@ int main()
 		0.0f, -1.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		20.0f);
-
+	spotLightCount++;
 	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
 		0.0f, -1.5f, 0.0f,
 		-100.0f, -1.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		20.0f);
+	spotLightCount++;
 
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, 
-		uniformEyePosition  = 0, uniformSpecularIntensity = 9, uniformShininess = 0;
-
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat) mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
-
-
-	Assimp::Importer importer = Assimp::Importer();
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
+		uniformSpecularIntensity = 0, uniformShininess = 0;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	// Loop until window closed
-	while (!mainWindow.getShouldClose())
-	{
-
-		GLfloat now = glfwGetTime();
-		deltaTime = now - lastTime;
+	while (!mainWindow.getShouldClose()) {
+		GLfloat now = glfwGetTime(); 
+		deltaTime = now - lastTime; 
 		lastTime = now;
 
-		// Get + Handle user input events
+		// Get + Handle User Input
 		glfwPollEvents();
 
 		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
-		// Clear window
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		shaderList[0].UseShader();
-		uniformModel = shaderList[0].GetModelLocation();
-		uniformProjection = shaderList[0].GetProjectionLocation();
-		uniformView = shaderList[0].GetViewLocation();
-		uniformEyePosition = shaderList[0].GetEyePositionLocation();
-		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
-		uniformShininess = shaderList[0].GetShininessLocation();
-
-		glm::vec3 lowLightPos = camera.getCameraPosition();
-		lowLightPos.y -= 0.3f;
-		//spotLights[0].SetFlash(lowLightPos, camera.getCameraDirection());
-
-		shaderList[0].SetDirectionalLight(&mainLight);
-		shaderList[0].SetPointLights(pointLights, pointLightCount);
-		shaderList[0].SetSpotLights(spotLights, spotLightCount);
-
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-
-		glm::mat4 model(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-		model = glm::rotate(model, glm::radians(curAngle), glm::vec3(0.f, 1.f, 0.f));
-		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		brickTexture.UseTexture();
-		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[0]->RenderMesh();
-
-		model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(0.0f, 2.5f, -2.5f));
-		//model = glm::rotate(model, glm::radians(curAngle), glm::vec3(0.f, 1.f, 0.f));
-		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		dirtTexture.UseTexture();
-		matteMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[1]->RenderMesh();
-
-		model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(0.f, -2.f, 0.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		plainTexture.UseTexture();
-		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh();
-
-		model = glm::mat4(1.f);
-		model = glm::translate(model, glm::vec3(-7.f, 0.f, 10.f));
-		model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		xwing.RenderModel();
-
-
-		// Update xwingPlayer's position and orientation based on camera
-		glm::vec3 playerPosition = camera.getCameraPosition() - camera.getCameraDirection() * 2.f;
-		glm::vec3 playerOrientation = camera.getCameraDirection();
-
-		model = glm::mat4(1.f);
-		model = glm::translate(model, playerPosition);
-		//model = glm::translate(model, glm:: vec3(0.f, 0.f, 0.01f));
-		float yaw = glm::degrees(atan2(playerOrientation.x, playerOrientation.z));
-		float pitch = glm::degrees(asin(-playerOrientation.y));
-
-		// Rotate the model according to the camera's orientation
-		//model = glm::rotate(model, glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-
-		model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		xwingPlayer.RenderModel();
-
-		printf("Camera Position: %f %f %f \n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		//printf("Player Position: %f %f %f \n", playerPosition.x, playerPosition.y, playerPosition.z);
-
-		printf("Camera Direction: %f %f %f \n", camera.getCameraDirection().x, camera.getCameraDirection().y, camera.getCameraDirection().z);
-		//printf("Player Direction: %f %f %f \n", playerOrientation.x, playerOrientation.y, playerOrientation.z);
-
-		// Extract position from the model matrix (translation part)
-		glm::vec3 modelPosition = glm::vec3(model[3]); // Assuming the translation is in the last column
-
-		// Extract direction from the model matrix (view direction)
-		glm::vec3 modelDirection = -glm::vec3(model[2]); // Assuming the view direction is in the third column
-
-		std::cout << "Model Position: (" << modelPosition.x << ", " << modelPosition.y << ", " << modelPosition.z << ")" << std::endl;
-		std::cout << "Model Direction: (" << modelDirection.x << ", " << modelDirection.y << ", " << modelDirection.z << ")" << std::endl;
-
-
-		glUseProgram(0);
+		DirectionalShadowMapPass(&mainLight);
+		RenderPass(camera.calculateViewMatrix(), projection);
 
 		mainWindow.swapBuffers();
 	}

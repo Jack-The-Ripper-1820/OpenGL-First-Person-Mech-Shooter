@@ -5,6 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <GL\glew.h>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
+
 #include <Constants.hpp>
 #include <DirectionalLight.hpp>
 #include <PointLight.hpp>
@@ -30,6 +34,9 @@ public:
 	void SetDirectionalLight(DirectionalLight* directionalLight);
 	void SetPointLights(PointLight* pointLight, unsigned int lightCount);
 	void SetSpotLights(SpotLight* spotLight, unsigned int lightCount);
+	void SetDirectionalShadowMap(GLuint textureUnit);
+	void SetTexture(GLuint textureUnit);
+	void SetDirectionalLightTransform(glm::mat4* lightTransform);
 
 	void UseShader();
 	void ClearShader();
@@ -42,7 +49,10 @@ private:
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, 
 		uniformEyePosition, uniformSpecularIntensity, uniformShininess,
 		uniformPointLightCount,
-		uniformSpotLightCount;
+		uniformSpotLightCount,
+		uniformDirectionalShadowMap,
+		uniformDirectionalLightTransform,
+		uniformTexture;
 
 	struct {
 		GLuint uniformColor;
