@@ -11,7 +11,7 @@ public:
 		GLfloat xPos, GLfloat yPos, GLfloat zPos,
 		GLfloat xDir, GLfloat yDir, GLfloat zDir,
 		GLfloat constant, GLfloat linear, GLfloat exponent,
-		GLfloat edgeAngle);
+		GLfloat edgeAngle, GLuint shadowWidth, GLuint shadowHeight, GLfloat near, GLfloat far);
 
 
 	virtual void UseLight(GLuint ambientIntensityLocation, GLuint ambientColorLocation,
