@@ -6,12 +6,10 @@ Model::Model()
 
 void Model::RenderModel()
 {
-	for (size_t i = 0; i < meshList.size(); i++)
-	{
+	for (size_t i = 0; i < meshList.size(); i++) {
 		unsigned int materialIndex = meshToTexture[i];
 
-		if (materialIndex < textureList.size() && textureList[materialIndex])
-		{
+		if (materialIndex < textureList.size() && textureList[materialIndex]) {
 			textureList[materialIndex]->UseTexture();
 		}
 
@@ -62,16 +60,9 @@ void Model::LoadMesh(aiMesh* mesh, const aiScene* scene)
 		else {
 			vertices.insert(vertices.end(), { 0.0f, 0.0f });
 		}
+		
+		vertices.insert(vertices.end(), { -mesh->mNormals[i].x, -mesh->mNormals[i].y, -mesh->mNormals[i].z });
 
-		if (mesh->mNormals) {
-			vertices.insert(vertices.end(), { -mesh->mNormals[i].x, -mesh->mNormals[i].y, -mesh->mNormals[i].z });
-		}
-
-		else {
-			//printf("No Normals \n");
-			vertices.insert(vertices.end(), { 0.f, 0.f, 0.f });
-
-		}
 	}
 
 	for (size_t i = 0; i < mesh->mNumFaces; i++) {

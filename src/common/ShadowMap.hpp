@@ -2,12 +2,13 @@
 
 #include <stdio.h>
 #include <GL\glew.h>
+#include <iostream>
 
 class ShadowMap {
 public:
 	ShadowMap();
 
-	virtual bool Init(GLuint width, GLuint height);
+	virtual bool Init(unsigned int width, unsigned height);
 
 	virtual void Write();
 
