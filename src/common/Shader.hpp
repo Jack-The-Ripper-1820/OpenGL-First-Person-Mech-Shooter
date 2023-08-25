@@ -29,6 +29,8 @@ public:
 	GLuint GetProjectionLocation();
 	GLuint GetModelLocation();
 	GLuint GetViewLocation();
+	GLuint GetAmbientIntensityLocation();
+	GLuint GetAmbientColorLocation();
 	GLuint GetEyePositionLocation();
 	GLuint GetSpecularIntensityLocation();
 	GLuint GetShininessLocation();
@@ -37,8 +39,8 @@ public:
 	GLuint GetFarPlaneLocation();
 
 	void SetDirectionalLight(DirectionalLight* directionalLight);
-	void SetPointLights(PointLight* pointLight, unsigned int lightCount);
-	void SetSpotLights(SpotLight* spotLight, unsigned int lightCount);
+	void SetPointLights(PointLight* pointLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset);
+	void SetSpotLights(SpotLight* spotLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset);
 	void SetDirectionalShadowMap(GLuint textureUnit);
 	void SetTexture(GLuint textureUnit);
 	void SetDirectionalLightTransform(glm::mat4* lightTransform);
@@ -93,6 +95,11 @@ private:
 		GLuint uniformDirection;
 		GLuint uniformEdgeAngle;
 	} uniformSpotLight[N_SPOT_LIGHTS];
+
+	struct {
+		GLuint uniformShadowMap;
+		GLuint uniformFarPlane;
+	} uniformOmniShadowMap[N_POINT_LIGHTS + N_SPOT_LIGHTS];
 
 	void CompileProgram();
 	void CompileShader(const char* vertexCode, const char* fragmentCode);

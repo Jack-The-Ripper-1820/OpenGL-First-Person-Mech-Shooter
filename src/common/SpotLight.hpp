@@ -22,6 +22,8 @@ public:
 
 	void SetFlash(glm::vec3 const& position, glm::vec3 const& direction);
 
+	void Toggle() { isOn = !isOn; }
+
 	~SpotLight();
 
 
@@ -29,4 +31,6 @@ private:
 	glm::vec3 direction;
 
 	GLfloat edgeAngle, procEdgeAngle;
+
+	bool isOn;
 };

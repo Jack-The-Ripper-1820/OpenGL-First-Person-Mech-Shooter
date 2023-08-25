@@ -8,6 +8,9 @@ file(GLOB TEXTURES "textures/*")
 file(GLOB MODELS "models/*")
 
 add_executable(src "main.cpp" ${COMMON_SOURCES} ${SHADERS})
+
+
+
 file(COPY ${COMMON_SOURCES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/common)
 
 if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/shaders)

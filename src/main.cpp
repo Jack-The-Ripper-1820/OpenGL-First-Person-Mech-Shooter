@@ -120,8 +120,11 @@ void CreateShaders() {
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
 
+	directionalShadowShader = Shader();
 	directionalShadowShader.CreateFromFiles("shaders/directional_shadow_map_vertex.glsl", "shaders/directional_shadow_map_fragment.glsl");
-	omniShadowShader.CreateFromFiles("shaders/omni_dir_shadow_map_vertex.glsl", "shaders/omni_dir_shadow_map_geometry.glsl", "shaders/omni_dir_shadow_map_fragment.glsl");
+	omniShadowShader = Shader();
+	omniShadowShader.CreateFromFiles("shaders/omni_directional_shadow_map_vertex.glsl", "shaders/omni_directional_shadow_map_geometry.glsl",
+		"shaders/omni_directional_shadow_map_fragment.glsl");
 }
 
 void RenderScene() {
@@ -189,6 +192,7 @@ void DirectionalShadowMapPass(DirectionalLight* light) {
 	glm::mat4 lightTransform = light->CalcLightTransform();
 	directionalShadowShader.SetDirectionalLightTransform(&lightTransform);
 
+	directionalShadowShader.Validate();
 	RenderScene();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -215,19 +219,21 @@ void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 	shaderList[0].SetDirectionalLight(&mainLight);
-	shaderList[0].SetPointLights(pointLights, pointLightCount);
-	shaderList[0].SetSpotLights(spotLights, spotLightCount);
+	shaderList[0].SetPointLights(pointLights, pointLightCount, 3, 0);
+	shaderList[0].SetSpotLights(spotLights, spotLightCount, 3 + pointLightCount, pointLightCount);
+
 	glm::mat4 mainLightTransform = mainLight.CalcLightTransform();
 	shaderList[0].SetDirectionalLightTransform(&mainLightTransform);
 
-	mainLight.GetShadowMap()->Read(GL_TEXTURE1);
-	shaderList[0].SetTexture(0);
-	shaderList[0].SetDirectionalShadowMap(1);
+	mainLight.GetShadowMap()->Read(GL_TEXTURE2);
+	shaderList[0].SetTexture(1);
+	shaderList[0].SetDirectionalShadowMap(2);
 
 	glm::vec3 lowerLight = camera.getCameraPosition();
 	lowerLight.y -= 0.3f;
 	//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
+	shaderList[0].Validate();
 	RenderScene();
 }
 
@@ -256,29 +262,32 @@ int main() {
 
 	mainLight = DirectionalLight(
 		1.0f, 1.0f, 1.0f,
-		0.1f, 0.3f,
+		0.0f, 0.0f,
 		0.0f, -15.0f, -10.0f,
 		2048, 2048);
 
-	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-		0.0f, 0.1f,
-		0.0f, 0.0f, 0.0f,
-		0.3f, 0.2f, 0.1f,
+	pointLights[1] = PointLight(
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.4f,
+		2.0f, 2.0f, 0.0f,
+		0.3f, 0.01f, 0.01f,
 		1024, 1024,
 		0.1f, 100.0f);
 
 	pointLightCount++;
 
-	pointLights[1] = PointLight(0.0f, 1.0f, 0.0f,
-		0.0f, 0.1f,
-		-4.0f, 2.0f, 0.0f,
-		0.3f, 0.1f, 0.1f,
+	pointLights[0] = PointLight(
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.4f,
+		-2.0f, 2.0f, 0.0f,
+		0.3f, 0.01f, 0.01f,
 		1024, 1024,
 		0.1f, 100.0f);
 
 	pointLightCount++;
 
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+	spotLights[0] = SpotLight(
+		1.0f, 1.0f, 1.0f,
 		0.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
@@ -289,7 +298,8 @@ int main() {
 
 	spotLightCount++;
 
-	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
+	spotLights[1] = SpotLight(
+		1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
 		0.0f, -1.5f, 0.0f,
 		-100.0f, -1.0f, 0.0f,
@@ -300,8 +310,10 @@ int main() {
 
 	spotLightCount++;
 
+
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
+
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	// Loop until window closed
@@ -316,6 +328,11 @@ int main() {
 		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
+		if (mainWindow.getKeys()[GLFW_KEY_L]) {
+			spotLights[0].Toggle();
+			mainWindow.getKeys()[GLFW_KEY_L] = false;
+		}
+
 		DirectionalShadowMapPass(&mainLight);
 
 		for (size_t i = 0; i < pointLightCount; i++) {
@@ -327,6 +344,8 @@ int main() {
 		}
 
 		RenderPass(camera.calculateViewMatrix(), projection);
+		
+		glUseProgram(0);
 
 		mainWindow.swapBuffers();
 	}
