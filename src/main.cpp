@@ -158,6 +158,15 @@ void RenderScene() {
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 	xwing.RenderModel();
+
+
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-7.5f, 0.0f, 8.0f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	mech.RenderModel();
 }
 
 void OmniShadowMapPass(PointLight* light) {
@@ -263,6 +272,9 @@ int main() {
 
 	xwing = Model();
 	xwing.LoadModel("models/x-wing.obj");
+
+	mech = Model();
+	mech.LoadModel("models/Kaiser.obj");
 
 	mainLight = DirectionalLight(
 		0.678f, 0.847f, 0.902f,

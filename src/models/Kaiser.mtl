@@ -1,0 +1,122 @@
+# Blender 3.6.2 MTL File: 'Kaiser.blend'
+# www.blender.org
+
+newmtl BreastTrigger
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_BreastTrigger_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_BreastTrigger_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_BreastTrigger_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_BreastTrigger_Normal.png
+
+newmtl Hand
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Hand_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Hand_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Hand_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Hand_Normal.png
+
+newmtl Head
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Head_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Head_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Head_Metallic.png
+map_Ke D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Head_Emissive.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Head_Normal.png
+
+newmtl LowerArm
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerArm_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerArm_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerArm_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerArm_Normal.png
+
+newmtl LowerLeg
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerLeg_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerLeg_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerLeg_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_LowerLeg_Normal.png
+
+newmtl Pilder
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Pilder_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Pilder_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Pilder_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Pilder_Normal.png
+
+newmtl Skull
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Skull_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Skull_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Skull_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Skull_Normal.png
+
+newmtl Torso
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Torso_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Torso_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Torso_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_Torso_Normal.png
+
+newmtl UpperArm
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperArm_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperArm_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperArm_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperArm_Normal.png
+
+newmtl UpperLeg
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperLeg_BaseColor.png
+map_Ns D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperLeg_Roughness.png
+map_refl D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperLeg_Metallic.png
+map_Bump -bm 1.000000 D:\OpenGL Learning\mazinkaiser-skl\source\Textures\Kaiser_UpperLeg_Normal.png
