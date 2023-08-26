@@ -234,7 +234,7 @@ void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 
 	glm::vec3 lowerLight = camera.getCameraPosition();
 	lowerLight.y -= 0.3f;
-	spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+	//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 	shaderList[0].Validate();
 
@@ -265,13 +265,13 @@ int main() {
 	xwing.LoadModel("models/x-wing.obj");
 
 	mainLight = DirectionalLight(
-		1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f,
-		0.0f, -15.0f, -10.0f,
+		0.678f, 0.847f, 0.902f,
+		0.1f, 0.9f,
+		-10.0f, -12.0f, -18.5f,
 		2048, 2048);
 
 	pointLights[1] = PointLight(
-		0.0f, 0.0f, 1.0f,
+		0.678, 0.847, 0.902, 
 		0.0f, 0.4f,
 		2.0f, 2.0f, 0.0f,
 		0.3f, 0.01f, 0.01f,
@@ -281,7 +281,7 @@ int main() {
 	pointLightCount++;
 
 	pointLights[0] = PointLight(
-		0.0f, 1.0f, 0.0f,
+		0.400, 0.600, 1.000,
 		0.0f, 0.4f,
 		-2.0f, 2.0f, 0.0f,
 		0.3f, 0.01f, 0.01f,
@@ -291,7 +291,7 @@ int main() {
 	pointLightCount++;
 
 	spotLights[0] = SpotLight(
-		1.0f, 1.0f, 1.0f,
+		0.635, 0.482, 0.933,
 		0.0f, 2.0f,
 		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
@@ -303,7 +303,7 @@ int main() {
 	spotLightCount++;
 
 	spotLights[1] = SpotLight(
-		1.0f, 1.0f, 1.0f,
+		0.400, 0.600, 1.000,
 		0.0f, 1.0f,
 		0.0f, -1.5f, 0.0f,
 		-100.0f, -1.0f, 0.0f,
