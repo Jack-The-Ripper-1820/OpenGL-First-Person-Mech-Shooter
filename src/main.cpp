@@ -21,13 +21,15 @@
 #include <Material.hpp>
 #include <Constants.hpp>
 #include <Model.hpp>
-
+#include <Skybox.hpp>
 
 std::vector<Mesh*> meshList;
 
 std::vector<Shader> shaderList;
 Shader directionalShadowShader;
 Shader omniShadowShader;
+
+Skybox skyBox;
 
 Window mainWindow;
 Camera camera;
@@ -199,6 +201,13 @@ void DirectionalShadowMapPass(DirectionalLight* light) {
 }
 
 void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
+	glViewport(0, 0, 1366, 768);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	skyBox.DrawSkybox(viewMatrix, projectionMatrix);
+
 	shaderList[0].UseShader();
 
 	uniformModel = shaderList[0].GetModelLocation();
@@ -209,11 +218,6 @@ void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 	uniformShininess = shaderList[0].GetShininessLocation();
 
-	glViewport(0, 0, 1366, 768);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
@@ -221,9 +225,8 @@ void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 	shaderList[0].SetDirectionalLight(&mainLight);
 	shaderList[0].SetPointLights(pointLights, pointLightCount, 3, 0);
 	shaderList[0].SetSpotLights(spotLights, spotLightCount, 3 + pointLightCount, pointLightCount);
-
-	glm::mat4 mainLightTransform = mainLight.CalcLightTransform();
-	shaderList[0].SetDirectionalLightTransform(&mainLightTransform);
+	auto lightTansform = mainLight.CalcLightTransform();
+	shaderList[0].SetDirectionalLightTransform(&lightTansform);
 
 	mainLight.GetShadowMap()->Read(GL_TEXTURE2);
 	shaderList[0].SetTexture(1);
@@ -231,9 +234,10 @@ void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {
 
 	glm::vec3 lowerLight = camera.getCameraPosition();
 	lowerLight.y -= 0.3f;
-	//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+	spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 	shaderList[0].Validate();
+
 	RenderScene();
 }
 
@@ -310,6 +314,17 @@ int main() {
 
 	spotLightCount++;
 
+	std::vector<std::string> skyBoxFaces;
+
+	skyBoxFaces.push_back("textures/lightblue/right.tga");
+	skyBoxFaces.push_back("textures/lightblue/left.tga");
+	skyBoxFaces.push_back("textures/lightblue/top.tga");
+	skyBoxFaces.push_back("textures/lightblue/bot.tga");
+	skyBoxFaces.push_back("textures/lightblue/back.tga");
+	skyBoxFaces.push_back("textures/lightblue/front.tga");
+
+
+	skyBox = Skybox(skyBoxFaces);
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
