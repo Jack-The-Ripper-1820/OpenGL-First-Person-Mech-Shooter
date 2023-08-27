@@ -2,6 +2,8 @@
 
 Model::Model()
 {
+	model = glm::mat4(1.f);
+	position = glm::vec3(0.f, 0.f, 0.f);
 }
 
 void Model::RenderModel()

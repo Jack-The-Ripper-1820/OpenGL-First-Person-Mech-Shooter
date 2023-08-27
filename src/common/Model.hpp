@@ -7,6 +7,10 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
+#include <GL\glew.h>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+
 #include <Mesh.hpp>
 #include <Texture.hpp>
 
@@ -18,7 +22,7 @@ public:
 	void LoadModel(const std::string& fileName);
 	void RenderModel();
 	void ClearModel();
-
+	void SetModelMatrix(glm::mat4 const& matrix) { model = matrix; }
 	~Model();
 
 private:
@@ -29,5 +33,8 @@ private:
 	std::vector<Mesh*> meshList;
 	std::vector<Texture*> textureList;
 	std::vector<unsigned int> meshToTexture;
+	glm::vec3 position;
+	glm::vec4 scale;
+	glm::mat4 model;
 };
 

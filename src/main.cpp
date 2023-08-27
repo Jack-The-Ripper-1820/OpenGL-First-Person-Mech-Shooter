@@ -136,14 +136,14 @@ void RenderScene() {
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	brickTexture.UseTexture();
 	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	meshList[0]->RenderMesh();
-
+	//meshList[0]->RenderMesh();
+	
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 4.0f, -2.5f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	dirtTexture.UseTexture();
 	matteMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	meshList[1]->RenderMesh();
+	//meshList[1]->RenderMesh();
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
@@ -154,16 +154,36 @@ void RenderScene() {
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(-7.0f, 0.0f, 10.0f));
+	model = glm::rotate(model, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
 	model = glm::scale(model, glm::vec3(0.006f, 0.006f, 0.006f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 	xwing.RenderModel();
 
 
-
-	model = glm::mat4(1.0f);
+	/*model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(-7.5f, 0.0f, 8.0f));
-	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));*/
+
+	glm::vec3 cameraPosition = camera.getCameraPosition();
+	float cameraYaw = camera.GetYaw(); // Assuming the Camera class has getYaw() function
+	glm::vec3 cameraFront = camera.getCameraDirection();
+
+	// Adjust the position and orientation of the mech
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, cameraPosition - cameraFront * -4.f); // Adjust the offset
+	model = glm::translate(model, glm::vec3(0.f, -0.5f, 0.f));
+	//model = glm::rotate(model, glm::radians(cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate the model to face the camera's direction
+	
+	// Calculate the rotation to make the model face the camera's direction
+	glm::vec3 modelForward = glm::vec3(0.0f, 0.0f, 1.0f); // Assuming the model's forward direction is +Z
+	glm::vec3 targetDirection = glm::normalize(cameraFront);
+	glm::quat rotation = glm::quatLookAt(targetDirection, glm::vec3(0.f, 1.f, 0.f));
+
+	model = model * glm::mat4(rotation);
+
+	
+	model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	glossyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 	mech.RenderModel();

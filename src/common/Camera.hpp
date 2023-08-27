@@ -21,6 +21,9 @@ public:
 
 	glm::vec3 getCameraDirection();
 
+	GLfloat GetYaw() { return yaw; }
+	GLfloat GetPitch() { return pitch; }
+
 private:
 	glm::vec3 position;
 	glm::vec3 front;
